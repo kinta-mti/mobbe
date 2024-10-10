@@ -67,7 +67,7 @@ type WHError struct {
 }
 
 // post a checkout
-func postCheckout(c *gin.Context) {
+func PostCheckout(c *gin.Context) {
 	var checkout Checkout
 	// Call BindJSON to bind the received JSON to
 	// checkout.
@@ -138,7 +138,7 @@ func postCheckout(c *gin.Context) {
 
 }
 
-func postWebhook(c *gin.Context) {
+func PostWebhook(c *gin.Context) {
 	var webhookRequest WHReq
 
 	// Call BindJSON to bind the received JSON to
@@ -176,7 +176,7 @@ func postWebhook(c *gin.Context) {
 
 }
 
-func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHReq) (int, any) {
+func WebHookResponse(requestRawBody []byte, signature string, webhookRequest WHReq) (int, any) {
 	if signature == "" {
 
 		return http.StatusBadRequest, WHError{
@@ -217,6 +217,6 @@ func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHR
 	}
 }
 
-func getWorld(c *gin.Context) {
+func GetWorld(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, HelloWorld{Request: "hello", Response: "world"})
 }
