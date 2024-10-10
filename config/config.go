@@ -43,13 +43,14 @@ type Configuration struct {
 }
 
 func Load(path string) Configuration {
+	log.Println("[config.Load]path:", path)
 	file, _ := os.Open(path)
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	configuration := Configuration{}
 	err := decoder.Decode(&configuration)
 	if err != nil {
-		log.Println("error:", err)
+		log.Println("[config.Load]error:", err)
 	}
 	log.Println("Server Info:" + configuration.Server.Port)
 	log.Println("DB Connection Info:" + configuration.Database.Name + ";" + configuration.Database.User + ";" + configuration.Database.Pass)

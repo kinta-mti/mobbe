@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"time"
-	//"ypgmerchant.test.negriku.id/config"
+
+	"github.com/kinta-mti/mobbe/config"
 )
 
 type UserOrder struct {
@@ -17,7 +18,7 @@ type UserOrder struct {
 	PaymentReceivedPayload string `json:"paymentReceivedPayload"`
 }
 
-func InsertNewUserOrder(orderId, usertoken string) bool {
+func InsertNewUserOrder(orderId, usertoken string, cfgDB config.DBConnInfo) bool {
 	db, err := sql.Open("mysql", "root:tree@/negrikui_ypgmerchant")
 	if err != nil {
 		log.Print(err.Error())
@@ -36,7 +37,7 @@ func InsertNewUserOrder(orderId, usertoken string) bool {
 
 }
 
-func GetOrder(orderId string) {
+func GetOrder(orderId string, cfgDB config.DBConnInfo) {
 	db, err := sql.Open("mysql", "root:tree@/negrikui_ypgmerchant")
 	if err != nil {
 		panic(err)

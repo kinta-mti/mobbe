@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kinta-mti/mobbe/config"
+	"github.com/kinta-mti/mobbe/db"
 	"github.com/kinta-mti/mobbe/ypg"
 )
 
@@ -66,6 +68,12 @@ type WHError struct {
 	ErrorMessage string `json:"errorMessage"`
 }
 
+var cfg config.Configuration
+
+func Init(_cfg config.Configuration) {
+	cfg = _cfg
+}
+
 // post a checkout
 func PostCheckout(c *gin.Context) {
 	var checkout Checkout
@@ -76,7 +84,7 @@ func PostCheckout(c *gin.Context) {
 		return
 	}
 
-	if db.InsertNewUserOrder(checkout.Id, checkout.FCMToken) {
+	if db.InsertNewUserOrder(checkout.Id, checkout.FCMToken, cfg.Database) {
 
 	} else {
 		c.JSON(http.StatusInternalServerError, WHError{ErrorCode: "3000", ErrorMessage: "Order ID already created"})
@@ -176,7 +184,7 @@ func PostWebhook(c *gin.Context) {
 
 }
 
-func WebHookResponse(requestRawBody []byte, signature string, webhookRequest WHReq) (int, any) {
+func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHReq) (int, any) {
 	if signature == "" {
 
 		return http.StatusBadRequest, WHError{

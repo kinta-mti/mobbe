@@ -8,10 +8,9 @@ import (
 	"github.com/kinta-mti/mobbe/endpoint"
 )
 
-var cfg config.Configuration
-
 func main() {
-	cfg := config.Load(os.Args[0])
+	cfg := config.Load(os.Args[1])
+	endpoint.Init(cfg)
 	router := gin.Default()
 	router.POST("/checkout", endpoint.PostCheckout)
 	router.POST("/webhook", endpoint.PostWebhook)
