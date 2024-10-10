@@ -32,3 +32,11 @@ require (
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+require github.com/kinta-mti/mobbe/config v1.0.0
+
+replace github.com/kinta-mti/mobbe/config => ./config
+
+replace github.com/kinta-mti/mobbe/db => ./db
+
+replace github.com/kinta-mti/mobbe/ypg => ./ypg
