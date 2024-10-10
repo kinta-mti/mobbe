@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"ypgmerchant.test.negriku.id/config"
-	"ypgmerchant.test.negriku.id/db"
-	ypg "ypgmerchant.test.negriku.id/ypg"
+	"github.com/kinta-mti/mobbe/config"
+	"github.com/kinta-mti/mobbe/db"
+	"github.com/kinta-mti/mobbe/ypg"
 
 	"github.com/gin-gonic/gin"
 )
@@ -136,12 +136,12 @@ func postCheckout(c *gin.Context) {
 	inquiryRequest.ReferenceUrl = "https://ypgmerchant.test.negriku.id/afterPayment"
 	inquiryRequest.Token = ""
 	//ypg.RefreshAccessToken()
-	ypg.RefreshAccessToken()
+	ypg.RefreshAccessToken(cfg.Ypg)
 	var payload, err = json.Marshal(inquiryRequest)
 	if err != nil {
 		log.Println("Error on read body.\n[ERROR] -", err)
 	} else {
-		var checkouturl = ypg.Inquiries(payload)
+		var checkouturl = ypg.Inquiries(payload, cfg.Ypg)
 		//c.IndentedJSON(http.StatusCreated, CheckoutRes{Url: checkouturl})
 		if checkouturl == "error" {
 			c.JSON(http.StatusInternalServerError, "")
@@ -202,19 +202,19 @@ func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHR
 		var signsplit = strings.Split(signature, ";")
 
 		//validate Received Signature
-		if ypg.IsValidSignature(requestRawBody, signsplit[0], signsplit[1]) {
+		if ypg.IsValidSignature(requestRawBody, signsplit[0], signsplit[1], cfg.Ypg) {
 			if webhookRequest.Type == "payment.validate" {
 				//payment.validate response. implement always OK
 				var whResponse WHPaymentValidateRes = WHPaymentValidateRes{
 					Status:            "ok",
-					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1]),
+					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1], cfg.Ypg),
 					Inquiry:           webhookRequest.Inquiry}
 				return http.StatusOK, whResponse
 			} else if webhookRequest.Type == "payment.received" {
 				//payment.received response. implement always OK
 				return http.StatusOK, WHPaymentReceivedRes{
 					Status:            "ok",
-					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1]),
+					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1], cfg.Ypg),
 				}
 			} else {
 				return http.StatusBadRequest, WHError{

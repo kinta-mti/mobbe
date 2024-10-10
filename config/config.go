@@ -26,6 +26,7 @@ type YpgInfo struct {
 	SecretKey  string `json:"SecretKey"`
 	Apimkey    string `json:"apimKey"`
 	ApimSecret string `json:"apimSecret"`
+	Uri        string `json:"uri"`
 	Path       Path   `json:"path"`
 }
 
