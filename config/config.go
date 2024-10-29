@@ -31,6 +31,7 @@ type YpgInfo struct {
 }
 
 type Path struct {
+	Uri        string `json:"uri"`
 	AccesToken string `json:"accesToken"`
 	Inquiries  string `json:"inquiries"`
 }
