@@ -129,12 +129,12 @@ func PostCheckout(c *gin.Context) {
 	inquiryRequest.ReferenceUrl = "https://ypgmerchant.test.negriku.id/afterPayment"
 	inquiryRequest.Token = ""
 	//ypg.RefreshAccessToken()
-	ypg.RefreshAccessToken(cfg.Ypg)
+	ypg.RefreshAccessToken()
 	var payload, err = json.Marshal(inquiryRequest)
 	if err != nil {
 		log.Println("Error on read body.\n[ERROR] -", err)
 	} else {
-		var checkouturl = ypg.Inquiries(payload, cfg.Ypg)
+		var checkouturl = ypg.Inquiries(payload)
 		//c.IndentedJSON(http.StatusCreated, CheckoutRes{Url: checkouturl})
 		if checkouturl == "error" {
 			c.JSON(http.StatusInternalServerError, "")
@@ -195,19 +195,19 @@ func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHR
 		var signsplit = strings.Split(signature, ";")
 
 		//validate Received Signature
-		if ypg.IsValidSignature(requestRawBody, signsplit[0], signsplit[1], cfg.Ypg) {
+		if ypg.IsValidSignature(requestRawBody, signsplit[0], signsplit[1]) {
 			if webhookRequest.Type == "payment.validate" {
 				//payment.validate response. implement always OK
 				var whResponse WHPaymentValidateRes = WHPaymentValidateRes{
 					Status:            "ok",
-					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1], cfg.Ypg),
+					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1]),
 					Inquiry:           webhookRequest.Inquiry}
 				return http.StatusOK, whResponse
 			} else if webhookRequest.Type == "payment.received" {
 				//payment.received response. implement always OK
 				return http.StatusOK, WHPaymentReceivedRes{
 					Status:            "ok",
-					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1], cfg.Ypg),
+					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1]),
 				}
 			} else {
 				return http.StatusBadRequest, WHError{

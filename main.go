@@ -6,11 +6,13 @@ import (
 
 	//	"github.com/gin-gonic/gin"
 	"github.com/kinta-mti/mobbe/config"
+	"github.com/kinta-mti/mobbe/ypg"
 	//	"github.com/kinta-mti/mobbe/endpoint"
 )
 
 func main() {
 	cfg := config.Load(os.Args[1])
+	ypg.Init(cfg.Ypg.ApiKey, cfg.Ypg.SecretKey, cfg.Ypg.Apimkey, cfg.Ypg.ApimSecret, cfg.Ypg.Path.Uri)
 	log.Print("[main]" + cfg.Server.Port)
 	//	endpoint.Init(cfg)
 	//	router := gin.Default()

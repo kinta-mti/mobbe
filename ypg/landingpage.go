@@ -13,8 +13,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-
-	"github.com/kinta-mti/mobbe/config"
 )
 
 // based on PG Documentation version 1.9.8 draft (internal)
@@ -150,21 +148,42 @@ type AccessToken struct {
 
 var accessToken *AccessToken
 var lastAccessTokenTime = time.Now()
+var merchant_apiKey = ""
+var merchant_secretkey = ""
+var apim_key = ""
+var apim_secret = ""
+var path_uri = ""
+var path_accessToken = ""
+var path_inquiries = ""
 
-func RefreshAccessToken(ypgConfig config.YpgInfo) *AccessToken {
+func Init(merchantApiKey, merchantSecretKey, apimKey, apimSecret, pathUri, pathAccessToken, pathInquiries string) {
+	if merchantApiKey == "" || merchantSecretKey == "" || apimKey == "" || apimSecret == "" || pathUri == "" || pathAccessToken == "" || pathInquiries == "" {
+		log.Println("[ypg.init] some ypg configuration is missing, please check your integration config")
+	} else {
+		merchant_apiKey = merchantApiKey
+		merchant_secretkey = merchantSecretKey
+		apim_key = apimKey
+		apim_secret = apimSecret
+		path_uri = pathUri
+		path_accessToken = pathAccessToken
+		path_inquiries = pathInquiries
+	}
+}
+
+func RefreshAccessToken() *AccessToken {
 	if accessToken == nil || (accessToken != nil && lastAccessTokenTime.Add(time.Second*time.Duration(accessToken.ExpiresIn)).Before(time.Now())) {
 
 		data := url.Values{}
 		data.Set("grant_type", "client_credential")
 
-		u, _ := url.ParseRequestURI(ypgConfig.Uri)
-		u.Path = ypgConfig.Path.AccesToken
+		u, _ := url.ParseRequestURI(path_uri)
+		u.Path = path_accessToken
 		urlStr := u.String()
 
 		client := &http.Client{}
 		r, _ := http.NewRequest(http.MethodPost, urlStr, strings.NewReader(data.Encode())) // URL-encoded payload
 		r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		r.SetBasicAuth(ypgConfig.Apimkey, ypgConfig.ApimSecret)
+		r.SetBasicAuth(apim_key, apim_secret)
 
 		resp, err := client.Do(r)
 		if err != nil {
@@ -187,10 +206,10 @@ func RefreshAccessToken(ypgConfig config.YpgInfo) *AccessToken {
 
 }
 
-func Inquiries(payload []byte, ypgConfig config.YpgInfo) string {
+func Inquiries(payload []byte) string {
 	log.Print("start inquiry")
-	u, _ := url.ParseRequestURI(ypgConfig.Uri)
-	u.Path = ypgConfig.Path.Inquiries
+	u, _ := url.ParseRequestURI(path_uri)
+	u.Path = path_inquiries
 	urlStr := u.String()
 	r, err := http.NewRequest(http.MethodPost, urlStr, bytes.NewReader(payload))
 	if err != nil {
@@ -199,7 +218,7 @@ func Inquiries(payload []byte, ypgConfig config.YpgInfo) string {
 	}
 
 	r.Header.Add("Content-Type", "application/json")
-	r.Header.Add("X-Api-Key", ypgConfig.ApiKey)
+	r.Header.Add("X-Api-Key", merchant_apiKey)
 	r.Header.Add("Authorization", "Bearer "+accessToken.AccessToken)
 	//log.Println("accessToken.\n[data] -", "Bearer "+accessToken.AccessToken)
 	client := &http.Client{}
@@ -227,14 +246,14 @@ func SignatureValidation(rawBody string) string {
 }
 
 // MD5(merchantSECRETKEY + signature + timestamp).digest('hex')
-func SignatureResponse(signature string, timestamp string, ypgConfig config.YpgInfo) string {
-	hash := md5.Sum([]byte(ypgConfig.SecretKey + signature + timestamp))
+func SignatureResponse(signature string, timestamp string) string {
+	hash := md5.Sum([]byte(merchant_secretkey + signature + timestamp))
 	return hex.EncodeToString(hash[:])
 }
 
 // HMAC SHA256(Requested raw body + `.` + timestamp, merchant.SECRETKEY).digest('hex')
-func IsValidSignature(requestRawBody []byte, signature, timestamp string, ypgConfig config.YpgInfo) bool {
-	mac := hmac.New(sha256.New, []byte(ypgConfig.SecretKey))
+func IsValidSignature(requestRawBody []byte, signature, timestamp string) bool {
+	mac := hmac.New(sha256.New, []byte(merchant_secretkey))
 
 	mac.Write(append(requestRawBody, "."+timestamp...))
 	expectedMAC := mac.Sum(nil)
