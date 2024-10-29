@@ -68,11 +68,17 @@ type WHError struct {
 }
 
 func Init(port string) {
-	router := gin.Default()
-	router.POST("/checkout", PostCheckout)
-	router.POST("/webhook", PostWebhook)
-	router.GET("/helo", GetWorld)
-	router.Run(":" + port)
+	if port == "" {
+		log.Println("[endpoint.init] configuration missing, please check server configuration")
+	} else {
+		router := gin.Default()
+		router.POST("/checkout", PostCheckout)
+		router.POST("/webhook", PostWebhook)
+		router.GET("/hello", GetWorld)
+		router.Run(":" + port)
+		log.Println("[endpoint.init] server run on port: " + port)
+	}
+
 }
 
 // post a checkout
@@ -81,10 +87,10 @@ func PostCheckout(c *gin.Context) {
 	// Call BindJSON to bind the received JSON to
 	// checkout.
 	if err := c.BindJSON(&checkout); err != nil {
-		log.Print("error BindJSON:" + err.Error())
+		log.Print("[endpoint.postcheckout] error BindJSON:" + err.Error())
 		return
 	}
-
+	//insert new order to
 	if db.InsertNewUserOrder(checkout.Id, checkout.FCMToken) {
 
 	} else {
@@ -133,7 +139,7 @@ func PostCheckout(c *gin.Context) {
 	ypg.RefreshAccessToken()
 	var payload, err = json.Marshal(inquiryRequest)
 	if err != nil {
-		log.Println("Error on read body.\n[ERROR] -", err)
+		log.Println("[endpoint.postcheckout] Error on read body.\n[ERROR] -", err)
 	} else {
 		var checkouturl = ypg.Inquiries(payload)
 		//c.IndentedJSON(http.StatusCreated, CheckoutRes{Url: checkouturl})
@@ -152,7 +158,7 @@ func PostWebhook(c *gin.Context) {
 
 	// Call BindJSON to bind the received JSON to
 	// newAlbum.
-	log.Print("masuk fungsi webhook")
+	log.Print("[endpoint.postWebhook] function called")
 
 	// check request structure
 	if err := c.BindJSON(&webhookRequest); err != nil {
@@ -164,7 +170,7 @@ func PostWebhook(c *gin.Context) {
 	requestRawBody, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		// Handle error
-		log.Print("error get request body:" + err.Error())
+		log.Print("[endpoint.postWebhook] error get request body:" + err.Error())
 		return
 	}
 
@@ -173,7 +179,7 @@ func PostWebhook(c *gin.Context) {
 	for name, values := range c.Request.Header {
 		// Loop over all values for the name.
 		for _, value := range values {
-			log.Print(name, "-", value)
+			log.Print("[endpoint.postWebhook]", name, "-", value)
 
 			if name == "Signature" {
 				signature = value

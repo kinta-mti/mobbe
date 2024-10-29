@@ -22,7 +22,7 @@ var db_pass = ""
 
 func Init(dbName, dbUser, dbPass string) {
 	if dbName == "" || dbUser == "" || dbPass == "" {
-		log.Println("[db.init] configuration missing, please check database configuration")
+		log.Println("[db.Init] configuration missing, please check database configuration")
 	} else {
 		db_name = dbName
 		db_user = dbUser
@@ -33,7 +33,7 @@ func Init(dbName, dbUser, dbPass string) {
 func InsertNewUserOrder(orderId, usertoken string) bool {
 	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
 	if err != nil {
-		log.Print(err.Error())
+		log.Print("[db.InsertNewUserOrder]", err.Error())
 	}
 	defer db.Close()
 	result, err := db.Exec("INSERT INTO UserOrder (OrderID, Usertoken, ReceivedTime) VALUES ($1, $2, $3)", orderId, usertoken, time.Now())

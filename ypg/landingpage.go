@@ -187,13 +187,13 @@ func RefreshAccessToken() *AccessToken {
 
 		resp, err := client.Do(r)
 		if err != nil {
-			log.Print(err)
+			log.Print("[ypg.RefreshAccessToken]", err)
 			return nil
 		}
 		defer resp.Body.Close()
 		bodyText, err := io.ReadAll(resp.Body)
 		if err != nil {
-			log.Print(err)
+			log.Print("[ypg.RefreshAccessToken]", err)
 			return nil
 		}
 
@@ -207,13 +207,13 @@ func RefreshAccessToken() *AccessToken {
 }
 
 func Inquiries(payload []byte) string {
-	log.Print("start inquiry")
+	log.Print("[ypg.Inquiries] function called")
 	u, _ := url.ParseRequestURI(path_uri)
 	u.Path = path_inquiries
 	urlStr := u.String()
 	r, err := http.NewRequest(http.MethodPost, urlStr, bytes.NewReader(payload))
 	if err != nil {
-		log.Println("Error creating request.\n[ERROR] -", err)
+		log.Println("[ypg.Inquiries] Error creating request.\n[ERROR] -", err)
 		return "error"
 	}
 
@@ -224,7 +224,7 @@ func Inquiries(payload []byte) string {
 	client := &http.Client{}
 	resp, err := client.Do(r)
 	if err != nil {
-		log.Println("Error on send inquiry.\n[ERROR] -", err)
+		log.Println("[ypg.Inquiries]\n[ERROR] -", err)
 		return "error"
 	}
 
@@ -232,7 +232,7 @@ func Inquiries(payload []byte) string {
 	bodyText, err := io.ReadAll(resp.Body)
 	//log.Println("inquiry raw body.\n[data] -", string(bodyText))
 	if err != nil {
-		log.Println("Error on read inquiry response body.\n[ERROR] -", err)
+		log.Println("[ypg.Inquiries] \n[ERROR] -", err)
 		return "error"
 	}
 	var inquiryResponse *InquiryRes
