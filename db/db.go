@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"log"
 	"time"
-
-	"github.com/kinta-mti/mobbe/config"
 )
 
 type UserOrder struct {
@@ -18,8 +16,22 @@ type UserOrder struct {
 	PaymentReceivedPayload string `json:"paymentReceivedPayload"`
 }
 
-func InsertNewUserOrder(orderId, usertoken string, cfgDB config.DBConnInfo) bool {
-	db, err := sql.Open("mysql", cfgDB.User+":"+cfgDB.Pass+"@/"+cfgDB.Name)
+var db_name = ""
+var db_user = ""
+var db_pass = ""
+
+func Init(dbName, dbUser, dbPass string) {
+	if dbName == "" || dbUser == "" || dbPass == "" {
+		log.Println("[db.init] configuration missing, please check database configuration")
+	} else {
+		db_name = dbName
+		db_user = dbUser
+		db_pass = dbPass
+	}
+}
+
+func InsertNewUserOrder(orderId, usertoken string) bool {
+	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
 	if err != nil {
 		log.Print(err.Error())
 	}
@@ -37,8 +49,8 @@ func InsertNewUserOrder(orderId, usertoken string, cfgDB config.DBConnInfo) bool
 
 }
 
-func GetOrder(orderId string, cfgDB config.DBConnInfo) {
-	db, err := sql.Open("mysql", cfgDB.User+":"+cfgDB.Pass+"@/"+cfgDB.Name)
+func GetOrder(orderId string) {
+	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
 	if err != nil {
 		panic(err)
 	}

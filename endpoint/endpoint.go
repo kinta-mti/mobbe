@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kinta-mti/mobbe/config"
 	"github.com/kinta-mti/mobbe/db"
 	"github.com/kinta-mti/mobbe/ypg"
 )
@@ -68,10 +67,12 @@ type WHError struct {
 	ErrorMessage string `json:"errorMessage"`
 }
 
-var cfg config.Configuration
-
-func Init(_cfg config.Configuration) {
-	cfg = _cfg
+func Init(port string) {
+	router := gin.Default()
+	router.POST("/checkout", PostCheckout)
+	router.POST("/webhook", PostWebhook)
+	router.GET("/helo", GetWorld)
+	router.Run(":" + port)
 }
 
 // post a checkout
@@ -84,7 +85,7 @@ func PostCheckout(c *gin.Context) {
 		return
 	}
 
-	if db.InsertNewUserOrder(checkout.Id, checkout.FCMToken, cfg.Database) {
+	if db.InsertNewUserOrder(checkout.Id, checkout.FCMToken) {
 
 	} else {
 		c.JSON(http.StatusInternalServerError, WHError{ErrorCode: "3000", ErrorMessage: "Order ID already created"})

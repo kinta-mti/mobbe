@@ -4,9 +4,13 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/kinta-mti/mobbe/config v0.0.0-20241029044804-8e5bbf4274dc
 	github.com/kinta-mti/mobbe/db v0.0.0-20241029064354-6151091fe6c5
 	github.com/kinta-mti/mobbe/ypg v0.0.0-20241029064354-6151091fe6c5
+)
+
+replace (
+	github.com/kinta-mti/mobbe/db => ../db
+	github.com/kinta-mti/mobbe/ypg => ../ypg
 )
 
 require (

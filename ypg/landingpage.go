@@ -158,7 +158,7 @@ var path_inquiries = ""
 
 func Init(merchantApiKey, merchantSecretKey, apimKey, apimSecret, pathUri, pathAccessToken, pathInquiries string) {
 	if merchantApiKey == "" || merchantSecretKey == "" || apimKey == "" || apimSecret == "" || pathUri == "" || pathAccessToken == "" || pathInquiries == "" {
-		log.Println("[ypg.init] some ypg configuration is missing, please check your integration config")
+		log.Println("[ypg.init] configuration missing, please check ypg configuration")
 	} else {
 		merchant_apiKey = merchantApiKey
 		merchant_secretkey = merchantSecretKey
