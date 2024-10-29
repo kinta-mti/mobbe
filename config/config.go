@@ -53,7 +53,7 @@ func Load(path string) Configuration {
 	if err != nil {
 		log.Println("[config.Load]error:", err)
 	}
-	log.Println("Server Info:" + configuration.Server.Port)
-	log.Println("DB Connection Info:" + configuration.Database.Name + ";" + configuration.Database.User + ";" + configuration.Database.Pass)
+	log.Println("[config.Load]Server port:" + configuration.Server.Port)
+	log.Println("[config.Load]DB Connection Info:" + configuration.Database.Name + ";" + configuration.Database.User + ";" + configuration.Database.Pass)
 	return configuration
 }
