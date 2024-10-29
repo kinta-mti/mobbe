@@ -11,7 +11,7 @@ import (
 
 func main() {
 	cfg := config.Load(os.Args[1])
-	log.Print(cfg.Server.Port)
+	log.Print("[main]" + cfg.Server.Port)
 	//	endpoint.Init(cfg)
 	//	router := gin.Default()
 	//	router.POST("/checkout", endpoint.PostCheckout)
