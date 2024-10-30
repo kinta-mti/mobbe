@@ -27,7 +27,16 @@ func Init(dbName, dbUser, dbPass string) {
 		db_name = dbName
 		db_user = dbUser
 		db_pass = dbPass
+		testConn()
 	}
+}
+
+func testConn() {
+	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
+	if err != nil {
+		log.Print("[db.testConn] ", err.Error())
+	}
+	db.Close()
 }
 
 func InsertNewUserOrder(orderId, usertoken string) bool {
