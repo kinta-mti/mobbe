@@ -44,7 +44,7 @@ type Configuration struct {
 }
 
 func Load(path string) Configuration {
-	log.Println("[config.Load]path:", path)
+	log.Println("[config.Load] called !! with config file:", path)
 	file, _ := os.Open(path)
 	defer file.Close()
 	decoder := json.NewDecoder(file)

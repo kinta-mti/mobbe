@@ -21,6 +21,7 @@ var db_user = ""
 var db_pass = ""
 
 func Init(dbName, dbUser, dbPass string) {
+	log.Println("[db.Init] called!!")
 	if dbName == "" || dbUser == "" || dbPass == "" {
 		log.Println("[db.Init] configuration missing, please check database configuration")
 	} else {

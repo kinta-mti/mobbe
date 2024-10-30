@@ -68,6 +68,7 @@ type WHError struct {
 }
 
 func Init(port string) {
+	log.Println("[endpoint.init] called!!")
 	if port == "" {
 		log.Println("[endpoint.init] configuration missing, please check server configuration")
 	} else {
