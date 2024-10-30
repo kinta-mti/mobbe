@@ -92,7 +92,7 @@ func PostCheckout(c *gin.Context) {
 		return
 	}
 	//insert new order to
-	if db.InsertNewUserOrder(checkout.Id, checkout.FCMToken) {
+	if db.InsertNewUserOrder(checkout.Id, checkout.FCMToken) > 0 {
 
 	} else {
 		c.JSON(http.StatusInternalServerError, WHError{ErrorCode: "3000", ErrorMessage: "Order ID already created"})

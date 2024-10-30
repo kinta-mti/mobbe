@@ -36,47 +36,49 @@ func Init(dbName, dbUser, dbPass string) {
 
 func testConn() {
 	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
-	defer db.Close()
+
 	if err != nil {
 		log.Panic("[db.testConn] ", err.Error())
 	} else {
+		defer db.Close()
 		log.Print("[db.testConn] Success!!")
+		InsertNewUserOrder("test", "user token of test")
+		log.Print("[db.testConn] " + GetOrder("test").Usertoken)
 	}
 
 }
 
-func InsertNewUserOrder(orderId, usertoken string) bool {
+func InsertNewUserOrder(orderId, usertoken string) int64 {
 	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
 	if err != nil {
 		log.Print("[db.InsertNewUserOrder]", err.Error())
 	}
 	defer db.Close()
-	result, err := db.Exec("INSERT INTO UserOrder (OrderID, Usertoken, ReceivedTime) VALUES ($1, $2, $3)", orderId, usertoken, time.Now())
+	result, err := db.Exec("INSERT INTO UserOrder (OrderID, Usertoken, ReceivedTime) VALUES (?, ?, ?)", orderId, usertoken, time.Now())
 	if err != nil {
-		log.Print(err.Error())
-	}
-	row, _ := result.RowsAffected()
-	if row > 0 {
-		return true
+		log.Print("[db.InsertNewUserOrder]" + err.Error())
+		return 0
 	} else {
-		return false
+		rowsAffected, _ := result.RowsAffected()
+		return rowsAffected
+
 	}
 
 }
 
-func GetOrder(orderId string) {
+func GetOrder(orderId string) UserOrder {
 	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 	var order UserOrder
-	err = db.QueryRow("select orderID,usertoken,receivedTime,PaymentValidateTime,PaymentReceivedTime,PaymentValidatePayload,PaymentReceivedPayload where orderID = ?", orderId).
+	err = db.QueryRow("select OrderID,Usertoken,ReceivedTime,PaymentValidateTime,PaymentReceivedTime,PaymentValidatePayload,PaymentReceivedPayload where OrderID = ?", orderId).
 		Scan(&order.OrderID, &order.Usertoken, &order.ReceivedTime, &order.PaymentValidateTime, &order.PaymentReceivedTime, &order.PaymentValidatePayload, &order.PaymentReceivedPayload)
 	if err != nil {
-		panic(err.Error())
+		log.Panic("[db.GetOrder]" + err.Error())
 	}
-
+	return order
 }
 
 /*
