@@ -33,10 +33,11 @@ func Init(dbName, dbUser, dbPass string) {
 
 func testConn() {
 	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
+	defer db.Close()
 	if err != nil {
-		log.Print("[db.testConn] ", err.Error())
+		log.Panic("[db.testConn] ", err.Error())
 	}
-	db.Close()
+
 }
 
 func InsertNewUserOrder(orderId, usertoken string) bool {
