@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/kinta-mti/mobbe/config"
@@ -10,6 +11,7 @@ import (
 )
 
 func main() {
+	log.Print("[main] v0.0.0")
 	cfg := config.Load(os.Args[1])
 	ypg.Init(cfg.Ypg.ApiKey, cfg.Ypg.SecretKey,
 		cfg.Ypg.Apimkey, cfg.Ypg.ApimSecret,
