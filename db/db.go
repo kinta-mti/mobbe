@@ -36,6 +36,8 @@ func testConn() {
 	defer db.Close()
 	if err != nil {
 		log.Panic("[db.testConn] ", err.Error())
+	} else {
+		log.Print("[db.testConn] Success!!")
 	}
 
 }
