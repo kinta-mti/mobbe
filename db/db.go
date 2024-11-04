@@ -9,13 +9,13 @@ import (
 )
 
 type UserOrder struct {
-	OrderID                string `json:"orderID"`
-	Usertoken              string `json:"usertoken"`
-	ReceivedTime           string `json:"receivedTime"`
-	PaymentValidateTime    string `json:"paymentValidateTime"`
-	PaymentReceivedTime    string `json:"paymentReceivedTime"`
-	PaymentValidatePayload string `json:"paymentValidatePayload"`
-	PaymentReceivedPayload string `json:"paymentReceivedPayload"`
+	OrderID                string         `json:"orderID"`
+	Usertoken              string         `json:"usertoken"`
+	ReceivedTime           sql.NullTime   `json:"receivedTime"`
+	PaymentValidateTime    sql.NullTime   `json:"paymentValidateTime"`
+	PaymentReceivedTime    sql.NullTime   `json:"paymentReceivedTime"`
+	PaymentValidatePayload sql.NullString `json:"paymentValidatePayload"`
+	PaymentReceivedPayload sql.NullString `json:"paymentReceivedPayload"`
 }
 
 var db_name = ""
@@ -49,7 +49,7 @@ func testConn() {
 }
 
 func InsertNewUserOrder(orderId, usertoken string) int64 {
-	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
+	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name+"?parseTime=true")
 	if err != nil {
 		log.Print("[db.InsertNewUserOrder]", err.Error())
 	}
@@ -67,13 +67,13 @@ func InsertNewUserOrder(orderId, usertoken string) int64 {
 }
 
 func GetOrder(orderId string) UserOrder {
-	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name)
+	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name+"?parseTime=true")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 	var order UserOrder
-	err = db.QueryRow("select OrderID,Usertoken,ReceivedTime,PaymentValidateTime,PaymentReceivedTime,PaymentValidatePayload,PaymentReceivedPayload where OrderID = ?", orderId).
+	err = db.QueryRow("select OrderID,Usertoken,ReceivedTime,PaymentValidateTime,PaymentReceivedTime,PaymentValidatePayload,PaymentReceivedPayload from userorder where OrderID = ?", orderId).
 		Scan(&order.OrderID, &order.Usertoken, &order.ReceivedTime, &order.PaymentValidateTime, &order.PaymentReceivedTime, &order.PaymentValidatePayload, &order.PaymentReceivedPayload)
 	if err != nil {
 		log.Panic("[db.GetOrder]" + err.Error())
