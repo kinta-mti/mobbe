@@ -73,7 +73,7 @@ func GetOrder(orderId string) UserOrder {
 	}
 	defer db.Close()
 	var order UserOrder
-	err = db.QueryRow("select OrderID,Usertoken,ReceivedTime,PaymentValidateTime,PaymentReceivedTime,PaymentValidatePayload,PaymentReceivedPayload from userorder where OrderID = ?", orderId).
+	err = db.QueryRow("select OrderID,Usertoken,ReceivedTime,PaymentValidateTime,PaymentReceivedTime,PaymentValidatePayload,PaymentReceivedPayload from UserOrder where OrderID = ?", orderId).
 		Scan(&order.OrderID, &order.Usertoken, &order.ReceivedTime, &order.PaymentValidateTime, &order.PaymentReceivedTime, &order.PaymentValidatePayload, &order.PaymentReceivedPayload)
 	if err != nil {
 		log.Panic("[db.GetOrder]" + err.Error())
