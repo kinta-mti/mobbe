@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	log.Print("[main] v0.0.0")
+	log.Print("[main] v0.0.0:2024-11-06:01")
 	cfg := config.Load(os.Args[1])
 	ypg.Init(cfg.Ypg.ApiKey, cfg.Ypg.SecretKey,
 		cfg.Ypg.Apimkey, cfg.Ypg.ApimSecret,
