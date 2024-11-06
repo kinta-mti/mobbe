@@ -2,7 +2,6 @@ package endpoint
 
 import (
 	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -155,24 +154,25 @@ func PostCheckout(c *gin.Context) {
 }
 
 func PostWebhook(c *gin.Context) {
-	var webhookRequest WHReq
-
-	// Call BindJSON to bind the received JSON to
-	// newAlbum.
 	log.Print("[endpoint.postWebhook] function called")
 
-	// check request structure
-	if err := c.BindJSON(&webhookRequest); err != nil {
-		log.Print("error BindJSON:" + err.Error())
-		return
-	}
-
 	//GET raw request body
-	requestRawBody, err := io.ReadAll(c.Request.Body)
+	requestRawBody, err := c.GetRawData()
 	if err != nil {
 		// Handle error
 		log.Print("[endpoint.postWebhook] error get request body:" + err.Error())
 		return
+	} else {
+		log.Print("[endpoint.postWebhook] requestrawbody length " + string(requestRawBody))
+	}
+
+	// convert request raw data to a struct
+	var webhookRequest WHReq
+	if err := json.Unmarshal(requestRawBody, &webhookRequest); err != nil {
+		log.Print("[endpoint.postWebhook] error BindJSON:" + err.Error())
+		return
+	} else {
+		log.Print("[endpoint.postWebhook] after bindjson:" + webhookRequest.Type)
 	}
 
 	//extract Signature
@@ -194,10 +194,9 @@ func PostWebhook(c *gin.Context) {
 
 func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHReq) (int, any) {
 	if signature == "" {
-
 		return http.StatusBadRequest, WHError{
-			ErrorCode:    "0001",
-			ErrorMessage: "Header Missing Signature"}
+			ErrorCode:    e_headerMissingSignature_c,
+			ErrorMessage: e_headerMissingSignature_m}
 	} else {
 		//payment validate response, implement always ok
 		var signsplit = strings.Split(signature, ";")
@@ -206,29 +205,47 @@ func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHR
 		if ypg.IsValidSignature(requestRawBody, signsplit[0], signsplit[1]) {
 			if webhookRequest.Type == "payment.validate" {
 				//payment.validate response. implement always OK
-				var whResponse WHPaymentValidateRes = WHPaymentValidateRes{
-					Status:            "ok",
-					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1]),
-					Inquiry:           webhookRequest.Inquiry}
-				return http.StatusOK, whResponse
+				if db.UpdatePaymentValidate(webhookRequest.Inquiry.Order.Id, string(requestRawBody)) {
+					var whResponse WHPaymentValidateRes = WHPaymentValidateRes{
+						Status:            "ok",
+						ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1]),
+						Inquiry:           webhookRequest.Inquiry}
+					return http.StatusOK, whResponse
+				} else {
+					var whResponse WHError = WHError{
+						ErrorCode:    e_orderIDNotFound_c,
+						ErrorMessage: e_orderIDNotFound_m,
+					}
+					return http.StatusBadRequest, whResponse
+				}
+
 			} else if webhookRequest.Type == "payment.received" {
 				//payment.received response. implement always OK
-				return http.StatusOK, WHPaymentReceivedRes{
-					Status:            "ok",
-					ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1]),
+				if db.UpdatePaymentReceived(webhookRequest.Inquiry.Order.Id, string(requestRawBody)) {
+					return http.StatusOK, WHPaymentReceivedRes{
+						Status:            "ok",
+						ValidateSignature: ypg.SignatureResponse(signsplit[0], signsplit[1]),
+					}
+				} else {
+					var whResponse WHError = WHError{
+						ErrorCode:    e_orderIDNotFound_c,
+						ErrorMessage: e_orderIDNotFound_m,
+					}
+					return http.StatusBadRequest, whResponse
 				}
+
 			} else {
 				return http.StatusBadRequest, WHError{
-					ErrorCode:    "9001",
-					ErrorMessage: "unhandled webhook type"}
+					ErrorCode:    e_unhandledException_c,
+					ErrorMessage: e_unhandledException_m + ": webhookRequest.Type==" + webhookRequest.Type}
 			}
 
 		} else {
 			//invalid signature
-			log.Print("INVALID SIGNATURE")
+			log.Print("[endpoint.webHookResponse] INVALID SIGNATURE")
 			return http.StatusBadRequest, WHError{
-				ErrorCode:    "1001",
-				ErrorMessage: "Invalid Signature"}
+				ErrorCode:    e_invalidSignature_c,
+				ErrorMessage: e_invalidSignature_m}
 		}
 	}
 }
@@ -236,3 +253,15 @@ func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHR
 func GetWorld(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, HelloWorld{Request: "hello", Response: "world"})
 }
+
+// constant list
+const (
+	e_headerMissingSignature_c = "0001"
+	e_headerMissingSignature_m = "Header Missing Signature"
+	e_invalidSignature_c       = "1001"
+	e_invalidSignature_m       = "Invalid Signature"
+	e_orderIDNotFound_c        = "2001"
+	e_orderIDNotFound_m        = "Order ID not found"
+	e_unhandledException_c     = "9999"
+	e_unhandledException_m     = "unhandled exception"
+)

@@ -42,8 +42,8 @@ func testConn() {
 	} else {
 		defer db.Close()
 		log.Print("[db.testConn] Success!!")
-		InsertNewUserOrder("test", "user token of test")
-		log.Print("[db.testConn] " + GetOrder("test").Usertoken)
+		//InsertNewUserOrder("test", "user token of test")
+		//log.Print("[db.testConn] " + GetOrder("test").Usertoken)
 	}
 
 }
@@ -69,7 +69,7 @@ func InsertNewUserOrder(orderId, usertoken string) int64 {
 func GetOrder(orderId string) UserOrder {
 	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name+"?parseTime=true")
 	if err != nil {
-		panic(err)
+		log.Panic("[db.GetOrder]" + err.Error())
 	}
 	defer db.Close()
 	var order UserOrder
@@ -81,16 +81,16 @@ func GetOrder(orderId string) UserOrder {
 	return order
 }
 
-/*
 func UpdatePaymentValidate(orderId, paymentValidatePayload string) bool {
-	db, err := sql.Open("mysql", "root:tree@/negrikui_ypgmerchant")
+	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name+"?parseTime=true")
+	log.Print("[db.UpdatePaymentValidate] paymentValidatePayload:*" + paymentValidatePayload + "*")
 	if err != nil {
-		log.Print(err.Error())
+		log.Panic("[db.UpdatePaymentValidate]" + err.Error())
 	}
 	defer db.Close()
-	result, err := db.Exec("INSERT INTO UserOrder (OrderID, Usertoken, ReceivedTime) VALUES ($1, $2, $3)", orderId, usertoken, time.Now())
+	result, err := db.Exec("UPDATE UserOrder SET PaymentValidateTime = ?, PaymentValidatePayload = ? where OrderID = ?", time.Now(), paymentValidatePayload, orderId)
 	if err != nil {
-		log.Print(err.Error())
+		log.Panic("[db.UpdatePaymentValidate]" + err.Error())
 	}
 	row, _ := result.RowsAffected()
 	if row > 0 {
@@ -99,4 +99,22 @@ func UpdatePaymentValidate(orderId, paymentValidatePayload string) bool {
 		return false
 	}
 }
-*/
+
+func UpdatePaymentReceived(orderId, paymentReceivedPayload string) bool {
+	db, err := sql.Open("mysql", db_user+":"+db_pass+"@/"+db_name+"?parseTime=true")
+	log.Print("[db.UpdatePaymentReceived] called!!")
+	if err != nil {
+		log.Panic("[db.UpdatePaymentReceived]" + err.Error())
+	}
+	defer db.Close()
+	result, err := db.Exec("UPDATE UserOrder SET PaymentReceivedTime = ?, PaymentReceivedPayload = ? where OrderID = ?", time.Now(), paymentReceivedPayload, orderId)
+	if err != nil {
+		log.Panic("[db.UpdatePaymentReceived]" + err.Error())
+	}
+	row, _ := result.RowsAffected()
+	if row > 0 {
+		return true
+	} else {
+		return false
+	}
+}
