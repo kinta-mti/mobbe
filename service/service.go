@@ -180,15 +180,18 @@ func PostWebhook(c *gin.Context) {
 	for name, values := range c.Request.Header {
 		// Loop over all values for the name.
 		for _, value := range values {
-			log.Print("[service.postWebhook]", name, "-", value)
+			//log.Print("[service.postWebhook]", name, "-", value)
 
 			if name == "Signature" {
 				signature = value
 			}
 		}
 	}
-
-	c.IndentedJSON(webHookResponse(requestRawBody, signature, webhookRequest))
+	httpResponseCode, obj := webHookResponse(requestRawBody, signature, webhookRequest)
+	c.IndentedJSON(httpResponseCode, obj)
+	if httpResponseCode == http.StatusOK {
+		notifyUser(webhookRequest)
+	}
 
 }
 
@@ -247,6 +250,13 @@ func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHR
 				ErrorCode:    e_invalidSignature_c,
 				ErrorMessage: e_invalidSignature_m}
 		}
+	}
+}
+
+func notifyUser(whRequest WHReq) {
+	if whRequest.Type == "payment.received" {
+		userToken := db.GetOrder(whRequest.Inquiry.Order.Id).Usertoken
+		log.Print("[service.notifyUser]try notify:" + userToken)
 	}
 }
 

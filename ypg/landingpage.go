@@ -157,7 +157,7 @@ var path_accessToken = ""
 var path_inquiries = ""
 
 func Init(merchantApiKey, merchantSecretKey, apimKey, apimSecret, pathUri, pathAccessToken, pathInquiries string) {
-	log.Println("[ypg.init] called!!")
+	//log.Println("[ypg.init] called!!")
 	if merchantApiKey == "" || merchantSecretKey == "" || apimKey == "" || apimSecret == "" || pathUri == "" || pathAccessToken == "" || pathInquiries == "" {
 		log.Println("[ypg.init] configuration missing, please check ypg configuration")
 	} else {
@@ -208,7 +208,7 @@ func RefreshAccessToken() *AccessToken {
 }
 
 func Inquiries(payload []byte) string {
-	log.Print("[ypg.Inquiries] function called")
+	//log.Print("[ypg.Inquiries] function called")
 	u, _ := url.ParseRequestURI(path_uri)
 	u.Path = path_inquiries
 	urlStr := u.String()
@@ -260,7 +260,7 @@ func IsValidSignature(requestRawBody []byte, signature, timestamp string) bool {
 	expectedMAC := mac.Sum(nil)
 
 	hex_expectedMAC := hex.EncodeToString(expectedMAC)
-	log.Print("[ypg.IsValidSignature]hex_expectedMAC:" + hex_expectedMAC)
-	log.Print("[ypg.IsValidSignature]signature--:" + signature)
+	//log.Print("[ypg.IsValidSignature]hex_expectedMAC:" + hex_expectedMAC)
+	//log.Print("[ypg.IsValidSignature]signature--:" + signature)
 	return hex_expectedMAC == signature
 }
