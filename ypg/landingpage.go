@@ -258,5 +258,7 @@ func IsValidSignature(requestRawBody []byte, signature, timestamp string) bool {
 
 	mac.Write(append(requestRawBody, "."+timestamp...))
 	expectedMAC := mac.Sum(nil)
+	log.Print("[ypg.IsValidSignature]expectedMAC:" + string(expectedMAC))
+	log.Print("[ypg.IsValidSignature]signature--:" + signature)
 	return hmac.Equal(expectedMAC, []byte(signature))
 }
