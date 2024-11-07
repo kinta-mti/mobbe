@@ -67,16 +67,16 @@ type WHError struct {
 }
 
 func Init(port string) {
-	log.Println("[endpoint.init] called!!")
+	log.Println("[service.init] called!!")
 	if port == "" {
-		log.Println("[endpoint.init] configuration missing, please check server configuration")
+		log.Println("[service.init] configuration missing, please check server configuration")
 	} else {
 		router := gin.Default()
 		router.POST("/checkout", PostCheckout)
 		router.POST("/webhook", PostWebhook)
 		router.GET("/hello", GetWorld)
 		router.Run(":" + port)
-		log.Println("[endpoint.init] server run on port: " + port)
+		log.Println("[service.init] server run on port: " + port)
 	}
 
 }
@@ -87,7 +87,7 @@ func PostCheckout(c *gin.Context) {
 	// Call BindJSON to bind the received JSON to
 	// checkout.
 	if err := c.BindJSON(&checkout); err != nil {
-		log.Print("[endpoint.postcheckout] error BindJSON:" + err.Error())
+		log.Print("[service.postcheckout] error BindJSON:" + err.Error())
 		return
 	}
 	//insert new order to
@@ -139,7 +139,7 @@ func PostCheckout(c *gin.Context) {
 	ypg.RefreshAccessToken()
 	var payload, err = json.Marshal(inquiryRequest)
 	if err != nil {
-		log.Println("[endpoint.postcheckout] Error on read body.\n[ERROR] -", err)
+		log.Println("[service.postcheckout] Error on read body.\n[ERROR] -", err)
 	} else {
 		var checkouturl = ypg.Inquiries(payload)
 		//c.IndentedJSON(http.StatusCreated, CheckoutRes{Url: checkouturl})
@@ -154,25 +154,25 @@ func PostCheckout(c *gin.Context) {
 }
 
 func PostWebhook(c *gin.Context) {
-	log.Print("[endpoint.postWebhook] function called")
+	log.Print("[service.postWebhook] function called")
 
 	//GET raw request body
 	requestRawBody, err := c.GetRawData()
 	if err != nil {
 		// Handle error
-		log.Print("[endpoint.postWebhook] error get request body:" + err.Error())
+		log.Print("[service.postWebhook] error get request body:" + err.Error())
 		return
 	} else {
-		log.Print("[endpoint.postWebhook] requestrawbody length " + string(requestRawBody))
+		log.Print("[service.postWebhook] requestrawbody length " + string(requestRawBody))
 	}
 
 	// convert request raw data to a struct
 	var webhookRequest WHReq
 	if err := json.Unmarshal(requestRawBody, &webhookRequest); err != nil {
-		log.Print("[endpoint.postWebhook] error BindJSON:" + err.Error())
+		log.Print("[service.postWebhook] error BindJSON:" + err.Error())
 		return
 	} else {
-		log.Print("[endpoint.postWebhook] after bindjson:" + webhookRequest.Type)
+		log.Print("[service.postWebhook] after bindjson:" + webhookRequest.Type)
 	}
 
 	//extract Signature
@@ -180,7 +180,7 @@ func PostWebhook(c *gin.Context) {
 	for name, values := range c.Request.Header {
 		// Loop over all values for the name.
 		for _, value := range values {
-			log.Print("[endpoint.postWebhook]", name, "-", value)
+			log.Print("[service.postWebhook]", name, "-", value)
 
 			if name == "Signature" {
 				signature = value
@@ -242,7 +242,7 @@ func webHookResponse(requestRawBody []byte, signature string, webhookRequest WHR
 
 		} else {
 			//invalid signature
-			log.Print("[endpoint.webHookResponse] INVALID SIGNATURE")
+			log.Print("[service.webHookResponse] INVALID SIGNATURE")
 			return http.StatusBadRequest, WHError{
 				ErrorCode:    e_invalidSignature_c,
 				ErrorMessage: e_invalidSignature_m}
