@@ -1,4 +1,4 @@
-module github.com/kinta-mti/mobbe/endpoint
+module github.com/kinta-mti/mobbe/service
 
 go 1.20
 

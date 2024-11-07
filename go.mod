@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/kinta-mti/mobbe/config v0.0.0-20241029043912-808e8b5b0011
 	github.com/kinta-mti/mobbe/db v0.0.0-20241029081110-42cced18400f
-	github.com/kinta-mti/mobbe/endpoint v0.0.0-20241029084309-4b72893c0d33
+	github.com/kinta-mti/mobbe/service v0.0.0-20241029084309-4b72893c0d33
 	github.com/kinta-mti/mobbe/ypg v0.0.0-20241029064354-6151091fe6c5
 )
 
@@ -44,6 +44,6 @@ require (
 replace (
 	github.com/kinta-mti/mobbe/config => ./config
 	github.com/kinta-mti/mobbe/db => ./db
-	github.com/kinta-mti/mobbe/endpoint => ./endpoint
+	github.com/kinta-mti/mobbe/service => ./service
 	github.com/kinta-mti/mobbe/ypg => ./ypg
 )

@@ -6,7 +6,7 @@ import (
 
 	"github.com/kinta-mti/mobbe/config"
 	"github.com/kinta-mti/mobbe/db"
-	"github.com/kinta-mti/mobbe/endpoint"
+	"github.com/kinta-mti/mobbe/service"
 	"github.com/kinta-mti/mobbe/ypg"
 )
 
@@ -17,7 +17,7 @@ func main() {
 		cfg.Ypg.Apimkey, cfg.Ypg.ApimSecret,
 		cfg.Ypg.Path.Uri, cfg.Ypg.Path.AccesToken, cfg.Ypg.Path.Inquiries)
 	db.Init(cfg.Database.Name, cfg.Database.User, cfg.Database.Pass)
-	endpoint.Init(cfg.Server.Port)
+	service.Init(cfg.Server.Port)
 	//	router := gin.Default()
 	//	router.POST("/checkout", endpoint.PostCheckout)
 	//	router.POST("/webhook", endpoint.PostWebhook)
