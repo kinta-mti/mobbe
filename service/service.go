@@ -1,20 +1,17 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
 
+	"firebase.google.com/go/v4/messaging"
 	"github.com/gin-gonic/gin"
 	"github.com/kinta-mti/mobbe/db"
 	"github.com/kinta-mti/mobbe/ypg"
 )
-
-type HelloWorld struct {
-	Request  string `json:"request"`
-	Response string `json:"response"`
-}
 
 type Item struct {
 	Sku   string `json:"sku"`
@@ -42,31 +39,9 @@ type CheckoutRes struct {
 	Url string `json:"url"`
 }
 
-type WHReq struct {
-	Type           string          `json:"type"` // value: payment.validate / payment.received
-	Transaction    ypg.Transaction `json:"transaction"`
-	Inquiry        ypg.Inquiry     `json:"inquiry"`
-	Token          string          `json:"token"`
-	TokenExpiredAt string          `json:"token_expired_at"`
-}
+var fcmClient messaging.Client
 
-type WHPaymentValidateRes struct {
-	Status            string      `json:"status"`
-	ValidateSignature string      `json:"validateSignature"`
-	Inquiry           ypg.Inquiry `json:"inquiry"`
-}
-
-type WHPaymentReceivedRes struct {
-	Status            string `json:"status"`
-	ValidateSignature string `json:"validateSignature"`
-}
-
-type WHError struct {
-	ErrorCode    string `json:"errorCode"`
-	ErrorMessage string `json:"errorMessage"`
-}
-
-func Init(port string) {
+func Init(port string, ctx context.Context) {
 	log.Println("[service.init] called!!")
 	if port == "" {
 		log.Println("[service.init] configuration missing, please check server configuration")
@@ -74,14 +49,19 @@ func Init(port string) {
 		router := gin.Default()
 		router.POST("/checkout", PostCheckout)
 		router.POST("/webhook", PostWebhook)
+		router.POST("/testPushNotif", testPushNotification)
 		router.GET("/hello", GetWorld)
 		router.Run(":" + port)
 		log.Println("[service.init] server run on port: " + port)
 	}
 
+	/*fcmClient, err := pushnotification.Init(ctx)
+	if err != nil {
+		log.Printf("[service.Init] error connecting to firebase: %v", err)
+	}*/
 }
 
-// post a checkout
+// post a checkout--------------------------------------------
 func PostCheckout(c *gin.Context) {
 	var checkout Checkout
 	// Call BindJSON to bind the received JSON to
@@ -151,6 +131,31 @@ func PostCheckout(c *gin.Context) {
 
 	}
 
+}
+
+// webhook------------------------------------------------
+type WHReq struct {
+	Type           string          `json:"type"` // value: payment.validate / payment.received
+	Transaction    ypg.Transaction `json:"transaction"`
+	Inquiry        ypg.Inquiry     `json:"inquiry"`
+	Token          string          `json:"token"`
+	TokenExpiredAt string          `json:"token_expired_at"`
+}
+
+type WHPaymentValidateRes struct {
+	Status            string      `json:"status"`
+	ValidateSignature string      `json:"validateSignature"`
+	Inquiry           ypg.Inquiry `json:"inquiry"`
+}
+
+type WHPaymentReceivedRes struct {
+	Status            string `json:"status"`
+	ValidateSignature string `json:"validateSignature"`
+}
+
+type WHError struct {
+	ErrorCode    string `json:"errorCode"`
+	ErrorMessage string `json:"errorMessage"`
 }
 
 func PostWebhook(c *gin.Context) {
@@ -260,8 +265,30 @@ func notifyUser(whRequest WHReq) {
 	}
 }
 
+// hello world ----------------------------------------------
+type HelloWorld struct {
+	Request  string `json:"request"`
+	Response string `json:"response"`
+}
+
 func GetWorld(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, HelloWorld{Request: "hello", Response: "world"})
+}
+
+//testPushNotif ----------------------------------------------
+
+type PushNotifTestReq struct {
+	Token   string `json:"token"`
+	Message string `json:"message"`
+}
+
+func testPushNotification(c *gin.Context) {
+	var request PushNotifTestReq
+	if err := c.BindJSON(&request); err != nil {
+		log.Print("[service.testPushNotification] error BindJSON:" + err.Error())
+		return
+	}
+
 }
 
 // constant list
