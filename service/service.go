@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"firebase.google.com/go/v4/messaging"
 	"github.com/gin-gonic/gin"
 	"github.com/kinta-mti/mobbe/db"
+	"github.com/kinta-mti/mobbe/pushnotification"
 	"github.com/kinta-mti/mobbe/ypg"
 )
 
@@ -38,8 +38,6 @@ type Checkout struct {
 type CheckoutRes struct {
 	Url string `json:"url"`
 }
-
-var fcmClient messaging.Client
 
 func Init(port string, ctx context.Context) {
 	log.Println("[service.init] called!!")
@@ -288,6 +286,7 @@ func testPushNotification(c *gin.Context) {
 		log.Print("[service.testPushNotification] error BindJSON:" + err.Error())
 		return
 	}
+	pushnotification.SendNotification(request.Token, "your message is received: "+request.Message)
 
 }
 

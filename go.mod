@@ -5,16 +5,22 @@ go 1.20
 require (
 	github.com/kinta-mti/mobbe/config v0.0.0-20241029043912-808e8b5b0011
 	github.com/kinta-mti/mobbe/db v0.0.0-20241029081110-42cced18400f
+	github.com/kinta-mti/mobbe/pushnotification v0.0.0
 	github.com/kinta-mti/mobbe/service v0.0.0-20241029084309-4b72893c0d33
 	github.com/kinta-mti/mobbe/ypg v0.0.0-20241029064354-6151091fe6c5
-	github.com/kinta-mti/mobbe/pushnotification v0.0.0
 )
 
 require (
+	cloud.google.com/go v0.112.1 // indirect
 	cloud.google.com/go/compute v1.24.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/firestore v1.15.0 // indirect
+	cloud.google.com/go/iam v1.1.7 // indirect
+	cloud.google.com/go/longrunning v0.5.5 // indirect
+	cloud.google.com/go/storage v1.40.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	firebase.google.com/go/v4 v4.15.0 // indirect
+	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
@@ -30,10 +36,13 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
+	github.com/googleapis/gax-go/v2 v2.12.3 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
@@ -59,6 +68,9 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/api v0.170.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
+	google.golang.org/appengine/v2 v2.0.2 // indirect
+	google.golang.org/genproto v0.0.0-20240213162025-012b6fc9bca9 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240314234333-6e1732d8331c // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240311132316-a219d84964c2 // indirect
 	google.golang.org/grpc v1.62.1 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
@@ -68,7 +80,7 @@ require (
 replace (
 	github.com/kinta-mti/mobbe/config => ./config
 	github.com/kinta-mti/mobbe/db => ./db
+	github.com/kinta-mti/mobbe/pushnotification => ./pushnotification
 	github.com/kinta-mti/mobbe/service => ./service
 	github.com/kinta-mti/mobbe/ypg => ./ypg
-	github.com/kinta-mti/mobbe/pushnotification => ./pushnotification
 )
